@@ -35,8 +35,35 @@ async function showLoginPage(req, res) {
 
 async function registerLabour(req, res) {
     try {
-        const newlabour = await labourService.registerLabour(req.body);
-        res.status(201).send(newlabour);
+        const body = {
+            name : req.body.name, 
+            phoneNumber : req.body.phoneNumber,
+            email : req.body.email, 
+            gender : req.body.gender, 
+            age : req.body.age,
+            experience : req.body.experience, 
+            password : req.body.password
+        };
+        const result = await labourService.registerLabour(body);
+        if(result == "emailError") {
+            return res.status(400).send("<h1>OOPs, your email is invalid</h1>");
+        }
+        if(result == "ageError") {
+            return res.status(400).send("<h1>Your age must be greater than 12 and less than 101</h1>");
+        }
+        if(result == "experienceError") {
+            return res.status(400).send(`<h1>Your experience is not more than ${body.age - 12} years</h1>`);
+        }
+        if(result == "phoneNumberError") {
+            return res.status(400).send(`<h1>Please enter correct phone number</h1>`);
+        }
+
+        if(result == "passwordError") {
+            return res.status(400).send(`<h1>Please include special characters, digits and alphabets</h1>`);
+        }
+
+        //* If everything is fine then redirect to login page
+        return res.status(201).render("login");
     }
     catch(error) {
         console.log(`Some error occur while pushing data into our database and the error = ${error}`);
@@ -47,22 +74,15 @@ async function registerLabour(req, res) {
 
 async function loginLabour(req, res) {
     try {
-        const email = req.body.email;
-        const password = (req.body.password).toString();
-        const getUserData = await labourService.loginLabour(email);
-        console.log(getUserData);
-        if(getUserData.length.toString() === "0") {
-            res.status(400).send("Sorry, invalid credentials");
-        } 
-        else {
-            const pw = getUserData[0].password.toString();
-            if(pw == password) {
-                res.render("home");
-            }
-            else {
-                res.send("Sorry, invalid credentials");
-            }
+        const body = {
+            email : req.body.email, 
+            password : req.body.password
+        }; 
+        const isValidUser = await labourService.loginLabour(body);
+        if(isValidUser) {
+            return res.status(200).render("home");
         }
+        return res.status(400).send("<h1>Sorry, Invalid credentials</h1>");
     }
     catch(error) {
         console.log(`Some error occur while login and the error = ${error}`);
