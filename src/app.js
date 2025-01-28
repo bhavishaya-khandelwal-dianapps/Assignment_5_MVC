@@ -1,17 +1,18 @@
 //* Requiring necessary libraries 
 const express = require("express");
 const hbs = require("hbs");
+const path = require("path");
 const { config } = require("dotenv");
 config();
 
 
 
 //* Require connection.js file to connect with our mongoDB server 
-require("../controllers/connection.js");
+require("./config/connection.js");
 
 
 //* Require routes.js file 
-const router = require("../routers/routes.js");
+const router = require("./routers/routes.js");
 
 
 
@@ -37,7 +38,9 @@ app.use(express.json());
 //? Getting routes 
 app.use(router);
 
-//? Define view engine  
+//? Define view engine 
+let viewPath = path.join(__dirname, "views");
+app.set("views", viewPath);
 app.set("view engine", "hbs");
 
 
