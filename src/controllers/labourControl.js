@@ -35,58 +35,44 @@ async function showLoginPage(req, res) {
 
 async function registerLabour(req, res) {
     try {
-        const body = {
-            name : req.body.name, 
-            phoneNumber : req.body.phoneNumber,
-            email : req.body.email, 
-            gender : req.body.gender, 
-            age : req.body.age,
-            experience : req.body.experience, 
-            password : req.body.password
-        };
-        const result = await labourService.registerLabour(body);
-        if(result == "emailError") {
-            return res.status(400).send("<h1>OOPs, your email is invalid</h1>");
-        }
-        if(result == "ageError") {
-            return res.status(400).send("<h1>Your age must be greater than 12 and less than 101</h1>");
-        }
-        if(result == "experienceError") {
-            return res.status(400).send(`<h1>Your experience is not more than ${body.age - 12} years</h1>`);
-        }
-        if(result == "phoneNumberError") {
-            return res.status(400).send(`<h1>Please enter correct phone number</h1>`);
-        }
+        const result = await labourService.registerLabour(req.body); 
+        const { newLabour, token } = result;
+        //* console.log("New User Token =", token);
+        //* console.log("User Data =", newLabour);
 
-        if(result == "passwordError") {
-            return res.status(400).send(`<h1>Please include special characters, digits and alphabets</h1>`);
-        }
+        //* Now, i am going to store this token into our cookie 
+        res.cookie("jwt", token, {
+            expires : new Date(Date.now() + 30000),
+            httpOnly : true 
+        });
 
         //* If everything is fine then redirect to login page
         return res.status(201).render("login");
     }
     catch(error) {
         console.log(`Some error occur while pushing data into our database and the error = ${error}`);
-        res.status(500).send(error);
+        return res.status(500).send(`${error}`);
     }
 };
 
 
 async function loginLabour(req, res) {
     try {
-        const body = {
-            email : req.body.email, 
-            password : req.body.password
-        }; 
-        const isValidUser = await labourService.loginLabour(body);
-        if(isValidUser) {
+        const isValidUser = await labourService.loginLabour(req.body);
+        const { isUserValid, token } = isValidUser;
+        if(isUserValid) {
+            res.cookie("jwt", token, {
+                expires : new Date(Date.now() + 50000), 
+                httpOnly : true
+            });
+            console.log("Login Time Cookie saved");
             return res.status(200).render("home");
         }
         return res.status(400).send("<h1>Sorry, Invalid credentials</h1>");
     }
     catch(error) {
         console.log(`Some error occur while login and the error = ${error}`);
-        res.status(400).send(error);
+        res.status(400).send(`${error}`);
     }
 }
 
