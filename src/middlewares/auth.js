@@ -18,7 +18,7 @@ const auth = async (req, res, next) => {
 
 
         req.token = token;
-        req.labourData = labourData;
+        req.user = labourData;
 
         next();
     }
@@ -29,7 +29,29 @@ const auth = async (req, res, next) => {
 
 
 
+async function validateToken(req, res, next) {
+    try {
+        console.log('req.headers :', req.headers);
+        const auth = req.headers.authorization;
+
+        const token = auth.split(" ")[1];
+        console.log('token :', token);
+        const verifyToken = jwt.verify(token, SECRET_KEY);
+        if(verifyToken) {
+            next(); 
+        }
+        else {
+            throw new Error("Token verification failed");
+        }
+    }
+    catch(error) {
+        res.status(500).send(`${error}`);
+    }
+};
+
+
 
 module.exports = {
-    auth
+    auth,
+    validateToken
 }

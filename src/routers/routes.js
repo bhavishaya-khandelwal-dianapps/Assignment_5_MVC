@@ -19,12 +19,19 @@ router.get("/secret", authMiddleware.auth, labourController.showSecretPage);
 
 router.get("/logout", authMiddleware.auth, labourController.logoutLabour);
 
+router.get("/users", authMiddleware.validateToken, labourController.getAllUsers);
+
 
 
 //? POST REQUEST goes from here -> 
 router.post("/register", labourController.registerLabour);
 
 router.post("/login", labourController.loginLabour);
+
+
+
+//? PATCH REQUEST goes from here -> 
+router.patch("/user/:id", authMiddleware.validateToken, labourController.updateUser);
 
 
 

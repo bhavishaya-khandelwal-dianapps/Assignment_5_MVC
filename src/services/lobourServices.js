@@ -79,11 +79,19 @@ async function loginLabour(body) {
 
     const isUserValid = true;
     return { isUserValid, token };
-}
+};
+
+
+
+async function getAllUsers() {
+    const users = await Labour.find({});
+    return users;
+};
 
 
 
 module.exports = {
     registerLabour,
-    loginLabour
+    loginLabour, 
+    getAllUsers
 }

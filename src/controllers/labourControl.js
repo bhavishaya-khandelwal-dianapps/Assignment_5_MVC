@@ -50,11 +50,15 @@ async function registerLabour(req, res) {
         //* console.log("User Data =", newLabour);
 
         //* Now, i am going to store this token into our cookie 
+        //! Method - 1 Using cookie 
         res.cookie("jwt", token, {
-            expires : new Date(Date.now() + 600000),
+            expires : new Date(Date.now() + 2400000),  //* 40mins
             httpOnly : true 
         });
-        console.log("Registration Cookie =", res.cookie);
+        console.log("Registration Cookie =", res.cookie); 
+
+        //! Method - 2 Using response  
+        // res.json({token});
  
         //* If everything is fine then redirect to login page
         return res.status(201).render("login");
@@ -75,7 +79,7 @@ async function loginLabour(req, res) {
 
             //* If the user is valid then I am going to store its token into cookie
             res.cookie("jwt", token, {
-                expires : new Date(Date.now() + 600000), 
+                expires : new Date(Date.now() + 2400000), 
                 httpOnly : true
             });
             console.log("Login Cookie =", res.cookie);
@@ -96,14 +100,14 @@ async function loginLabour(req, res) {
 async function logoutLabour(req, res) {
     try {
         //* Logout from all devices 
-        req.labourData.tokens = [];
+        req.user.tokens = [];
 
         //* Clear all cookies 
         res.clearCookie("jwt");
 
 
         //* Before logout we are saving user's data into our dataBase 
-        await req.labourData.save();
+        await req.user.save();
 
         //* After logout we are rendering login page
         res.render("login");
@@ -114,6 +118,36 @@ async function logoutLabour(req, res) {
 };
 
 
+
+//* Get all users 
+async function getAllUsers(req, res) {
+    try {
+        const users = await labourService.getAllUsers();
+        return res.status(200).send(users);
+    }
+    catch(error) {
+        console.log(`Error occur when getting all the users and the error = ${error}`);
+        return res.status(500).send(`${error}`);
+    }
+};
+
+
+
+
+//* Update user 
+async function updateUser(req, res) {
+    try {
+        const id = req.params.id;
+        const result = await Labour.findByIdAndUpdate({_id : id}, { $set :  req.body });
+        await result.save();
+        res.status(200).send("Data updated successfully")
+    }
+    catch(error) {
+        res.status(500).send(`${error}`);
+    }
+}
+
+
 module.exports = {
     showHomePage, 
     showRegistrationPage, 
@@ -121,5 +155,7 @@ module.exports = {
     registerLabour,
     loginLabour, 
     showSecretPage, 
-    logoutLabour
+    logoutLabour, 
+    getAllUsers,
+    updateUser
 }

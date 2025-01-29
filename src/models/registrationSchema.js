@@ -46,7 +46,7 @@ const rSchema = new mongoose.Schema({
             required : true 
         }
     }]
-});
+}, { timestamps : true });
 
 
 //* Create collection 
