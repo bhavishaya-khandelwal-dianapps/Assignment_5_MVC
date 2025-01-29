@@ -8,25 +8,26 @@ const SECRET_KEY = process.env.SECRET_KEY || "mynameisbhavishayakhandelwalandilo
 
 //* Function to generate JWT token 
 async function generateToken(data) {
+console.log('data :', data);
     try {
         //* Define payload 
+        console.log('data._id :', data._id);
         const payload = {
             _id : data._id
         };
 
         //* Now, generate token  
+        console.log('payload :', payload);
         const token = await jwt.sign(payload, SECRET_KEY);
 
-        //* Adding token to our data base  
-        console.log("data.tokens =", data.tokens); 
 
+        //* Adding token to our data base  
         if(data.tokens == undefined) {
             data.tokens = [{ token }];
         }
         else {
-            data.token[(data.tokens).length] = { token };
+            data.tokens.push({ token });
         }
-        console.log("data.tokens.length =", (data.tokens).length);
 
         return token;
     }

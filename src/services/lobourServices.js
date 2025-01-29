@@ -64,9 +64,9 @@ async function loginLabour(body) {
     if(validate.isValid("password", body) == false) throw new Error("<h1>Invalid Credentials</h1>");
     
     //* Find the data of that user 
-    let userData = await Labour.find({email});
-    if(userData.length == 0) throw new Error("<h1>Invalid Credentials</h1>");
-    let storedPassword = (userData[0].password).toString();
+    let userData = await Labour.findOne({email});
+    if(!userData) throw new Error("<h1>Invalid Credentials</h1>");
+    let storedPassword = (userData.password).toString();
     let isMatch = await hash.compareThePassword(password, storedPassword);  
     if(isMatch == false) {
         throw new Error("<h1>Invalid Credentials</h1>");
@@ -74,7 +74,7 @@ async function loginLabour(body) {
 
     
     //* If all the details are match then also generate token and store it in cookies 
-    const token = await middleware.generateToken(body);
+    const token = await middleware.generateToken(userData);
     console.log("Login Time Token =", token); 
 
     const isUserValid = true;

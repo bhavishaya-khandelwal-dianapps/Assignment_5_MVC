@@ -4,6 +4,7 @@ const hbs = require("hbs");
 const path = require("path");
 const { config } = require("dotenv");
 config();
+const cookieParser = require("cookie-parser");
 
 
 
@@ -34,6 +35,9 @@ app.use(express.urlencoded({
 
 //? Midlleware - 2 
 app.use(express.json());
+
+//? Use cookie parser - Middleware - 3
+app.use(cookieParser());
 
 //? Getting routes 
 app.use(router);
